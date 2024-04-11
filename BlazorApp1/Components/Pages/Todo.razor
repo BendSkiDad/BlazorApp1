@@ -1,0 +1,71 @@
+﻿@page "/todo"
+@rendermode InteractiveServer
+
+<PageTitle>Todo</PageTitle>
+
+<h3>Todo (@todos.Count(todo => !todo.IsDone))</h3>
+
+@if (!todos.Any())
+{
+    <p>None</p>
+}
+else
+{
+    <ul>
+        @foreach (var todo in todos)
+        {
+            <li>
+                <input type="checkbox" @bind="todo.IsDone" />
+                <input @bind="todo.Title" readonly=@todo.IsDone placeholder=@todo.TitlePlaceHolderText() />
+            </li>
+        }
+    </ul>
+}
+<div>
+    <button @onclick="AddTodoInline">Add todo inline</button>
+</div>
+
+<input @bind="newTodo" placeholder="Something todo" autofocus/>
+<button @onclick="AddTodo">Add todo</button>
+
+<div>
+    <button @onclick="OpenAddTodoDialog">Add todo</button>
+</div>
+
+<dialog id="idAddTodo" open=@isAddTodoDialogOpen>
+    <input @bind="newTodo" placeholder="Something todo" />
+    <button @onclick="AddTodo">Add</button>
+    <button @onclick="CloseAddTodoDialog">Cancel</button>
+</dialog>
+
+@code {
+    //string placeHolderTextForEmptyTodoItem = "Something todo";
+    private List<TodoItem> todos = new();
+    string newTodo = "";
+    bool isAddTodoDialogOpen = false;
+
+    void AddTodoInline()
+    {
+        todos.Add(new TodoItem { Title = newTodo });
+    }
+
+    void AddTodo()
+    {
+        if(!string.IsNullOrWhiteSpace(newTodo))
+        {
+            todos.Add(new TodoItem { Title = newTodo });
+            newTodo = string.Empty;
+        }
+        isAddTodoDialogOpen = false;
+    }
+
+    void OpenAddTodoDialog()
+    {
+        isAddTodoDialogOpen = true;
+    }
+
+    void CloseAddTodoDialog()
+    {
+        isAddTodoDialogOpen = false;
+    }
+}

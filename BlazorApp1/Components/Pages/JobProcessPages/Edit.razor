@@ -1,0 +1,118 @@
+﻿@page "/JobProcesses/edit"
+@inject BlazorApp1.Models.JobTrackerDevContext DB
+@using BlazorApp1.Models
+@using BlazorApp1.ViewModels
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>JobProcess</h4>
+<hr />
+@if (JobProcessVM is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="JobProcessVM" OnValidSubmit="UpdateJobProcess" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="JobProcess.Id" value="@JobProcessVM.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="JobProcessVM.Name" class="form-control" />
+                    <ValidationMessage For="() => JobProcessVM.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="pluralname" class="form-label">PluralName:</label>
+                    <InputText id="pluralname" @bind-Value="JobProcessVM.PluralName" class="form-control" />
+                    <ValidationMessage For="() => JobProcessVM.PluralName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="isActive" class="form-label">Active?:</label>
+                    <InputCheckbox id="isActive" @bind-Value="JobProcessVM.IsActive" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/jobprocesses">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public EditJobProcessViewModel? JobProcessVM { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var existingJobProcess = await DB.JobProcesses.FirstOrDefaultAsync(m => (int)m.JobProcessId == Id);
+
+        if (existingJobProcess is null) {
+            NavigationManager.NavigateTo("notfound");
+        } else {
+            JobProcessVM = new EditJobProcessViewModel()
+                {
+                    Id = existingJobProcess.Id,
+                    Name = existingJobProcess.Name,
+                    PluralName = existingJobProcess.PluralName,
+                    IsActive = existingJobProcess.IsActive
+                };
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateJobProcess()
+    {
+        if (JobProcessVM is not null)
+        {
+            var existingJobProcess = await DB.JobProcesses.FirstOrDefaultAsync(m => (int)m.JobProcessId == JobProcessVM.Id);
+            if (existingJobProcess is not null)
+            {
+                existingJobProcess.Name = JobProcessVM.Name;
+                existingJobProcess.PluralName = JobProcessVM.PluralName;
+                existingJobProcess.IsActive = JobProcessVM.IsActive;
+                DB.Attach(existingJobProcess).State = EntityState.Modified;
+
+                try
+                {
+                    await DB.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!JobProcessExists(JobProcessVM!.Id))
+                    {
+                        NavigationManager.NavigateTo("notfound");
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                NavigationManager.NavigateTo("/jobprocesses");
+            }
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    bool JobProcessExists(int id)
+    {
+        return DB.JobProcesses.Any(e => (int)e.JobProcessId == id);
+    }
+}

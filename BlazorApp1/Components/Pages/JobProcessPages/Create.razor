@@ -1,0 +1,52 @@
+﻿@page "/jobprocesses/create"
+@inject BlazorApp1.Models.JobTrackerDevContext DB
+@using BlazorApp1.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h4>JobProcess</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="JobProcess" OnValidSubmit="AddJobProcess" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="JobProcess.Name" class="form-control" /> 
+                <ValidationMessage For="() => JobProcess.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="pluralname" class="form-label">PluralName:</label> 
+                <InputText id="pluralname" @bind-Value="JobProcess.PluralName" class="form-control" /> 
+                <ValidationMessage For="() => JobProcess.PluralName" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/jobprocesses">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm(FormName = "create")]
+    public JobProcess JobProcess { get; set; } = new();
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddJobProcess()
+    {
+        var maxJobProcessId = (int)DB.JobProcesses.Max(jp => jp.JobProcessId);
+        JobProcess.Id = maxJobProcessId + 1;
+        JobProcess.SequenceNum = (byte)(DB.JobProcesses.Max(jp => jp.SequenceNum) + 1);
+        JobProcess.IsInactive = (byte)0;
+        DB.JobProcesses.Add(JobProcess);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/jobprocesses");
+    }
+}

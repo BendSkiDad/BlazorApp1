@@ -1,0 +1,29 @@
+﻿@page "/jobprocesses"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject BlazorApp1.Models.JobTrackerDevContext DB
+@using BlazorApp1.Models
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="jobprocesses/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.JobProcesses.OrderBy(jp => jp.SequenceNum)">
+    <PropertyColumn Property="jobprocess => jobprocess.Name" />
+    <PropertyColumn Property="jobprocess => jobprocess.PluralName" />
+    <PropertyColumn Property="jobprocess => jobprocess.IsActive" />
+    <TemplateColumn Context="jobprocess" Title="Active?" Align="Align.Center">
+        @if(jobprocess.IsActive)
+        {
+            <span>&#10003;</span>
+        }
+    </TemplateColumn>
+    <TemplateColumn Context="jobprocess">
+        <a href="@($"jobprocesses/edit?id={jobprocess.Id}")">Edit</a> |
+        <a href="@($"jobprocesses/details?id={jobprocess.Id}")">Details</a> |
+        <a href="@($"jobprocesses/delete?id={jobprocess.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
