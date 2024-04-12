@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<JobTrackerDevContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("JobTrackerDevContext") ?? throw new InvalidOperationException("Connection string 'JobTrackerDevContext' not found.")));
+options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING") ?? throw new InvalidOperationException("Connection string 'AZURE_SQL_CONNECTIONSTRING' not found.")));
 
 builder.Services.AddQuickGridEntityFrameworkAdapter(); ;
 
