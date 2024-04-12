@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<JobTrackerDevContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("JobTrackerDevContext") ?? throw new InvalidOperationException("Connection string 'BlazorApp2Context' not found.")));
+options.UseSqlServer(builder.Configuration.GetConnectionString("JobTrackerDevContext") ?? throw new InvalidOperationException("Connection string 'JobTrackerDevContext' not found.")));
 
 builder.Services.AddQuickGridEntityFrameworkAdapter(); ;
 
